@@ -3,9 +3,13 @@ package itemorigin.client;
 import java.io.IOException;
 import java.util.Map;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
+import com.github.wnameless.json.flattener.JsonFlattener;
 import com.google.common.base.Splitter;
 
 import itemorigin.util.JSoupUtils;
@@ -18,7 +22,7 @@ public class StandaloneClient {
 
 	private static final String URL = "http://gepir.gs1.org/index.php?option=com_gepir4ui&view=getkeylicensee&format=raw";
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, ParseException {
 		String gln = "8423415501009";
 		// String gln = "8410728180120";
 
@@ -39,7 +43,15 @@ public class StandaloneClient {
 
 		Map<String, String> cookies = response.cookies();
 
-		System.out.println(response.body());
+		JSONParser parser = new JSONParser();
+		String ret = response.body();
+		Object obj = parser.parse(ret);
+		JSONObject jsonObject = (JSONObject) obj;
+		Map<String, Object> flattenedJsonMap = JsonFlattener.flattenAsMap(jsonObject.toString());
+
+		flattenedJsonMap.forEach((k, v) -> System.out.println(k + " : " + v));
+
+		//System.out.println(response.body());
 
 	}
 
