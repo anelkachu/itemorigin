@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.wnameless.json.flattener.JsonFlattener;
+import com.google.common.base.Strings;
 
 import itemorigin.beans.IResolver;
 
@@ -50,6 +51,8 @@ public class ItemController {
 		mapReturn.put("countryAdministered", countryAdministered);
 		mapReturn.put("postalCode", postalCode);
 		mapReturn.put("city", city);
+
+		mapReturn.entrySet().removeIf(e -> Strings.isNullOrEmpty(e.getValue()));
 
 		return mapReturn;
 	}
