@@ -1,9 +1,9 @@
-package itemorigin.beans;
+package itemorigin.service;
 
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 
-public interface IResolver {
+public interface IOriginService {
 
 	@Cacheable("glnId")
 	String getGlnInfo(String id);

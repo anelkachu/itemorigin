@@ -13,9 +13,15 @@ public class CacheConfig {
 
 	@Bean
 	public Config hazelCastConfig() {
-		return new Config().setInstanceName("hazelcast-instance")
-				.addMapConfig(new MapConfig().setName("instruments")
-						.setMaxSizeConfig(new MaxSizeConfig(200, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE))
-						.setEvictionPolicy(EvictionPolicy.LRU).setTimeToLiveSeconds(20));
+
+		MapConfig countryMap = new MapConfig().setName("glnCountryCode")
+				.setMaxSizeConfig(new MaxSizeConfig(200, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE))
+				.setEvictionPolicy(EvictionPolicy.LRU).setTimeToLiveSeconds(20);
+
+		MapConfig glnMap = new MapConfig().setName("glnId")
+				.setMaxSizeConfig(new MaxSizeConfig(200, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE))
+				.setEvictionPolicy(EvictionPolicy.LRU).setTimeToLiveSeconds(20);
+
+		return new Config().setInstanceName("hazelcast-instance").addMapConfig(glnMap).addMapConfig(countryMap);
 	}
 }

@@ -1,4 +1,4 @@
-package itemorigin.beans;
+package itemorigin.service;
 
 import java.io.IOException;
 
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import itemorigin.client.StandaloneClient;
 
 @Component
-public class OriginResolver implements IResolver {
+public class OriginService implements IOriginService {
 
 	@Override
 	public String getGlnInfo(String id) {
