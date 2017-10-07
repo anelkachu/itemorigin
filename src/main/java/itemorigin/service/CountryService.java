@@ -1,18 +1,13 @@
 package itemorigin.service;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Locale;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import com.hazelcast.core.Hazelcast;
@@ -25,9 +20,8 @@ public class CountryService {
 
 	@PostConstruct
 	public void afterPropertiesSet() throws Exception {
-		Resource resource = new ClassPathResource("glnCountry.csv");
-		FileReader fr = new FileReader(resource.getFile());
-		try (BufferedReader br = new BufferedReader(fr)) {
+		InputStream is = CountryService.class.getClassLoader().getResourceAsStream("glnCountry.csv");
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
 			String line;
 			while ((line = br.readLine()) != null) {
 				String[] fields = line.split(",");
@@ -36,7 +30,6 @@ public class CountryService {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 		// TODO i18n
 		Locale.setDefault(new Locale("es", "ES"));
 	}
