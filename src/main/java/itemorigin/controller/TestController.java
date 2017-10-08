@@ -4,14 +4,16 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-@RestController
+@Controller
 public class TestController {
 
-	@RequestMapping(value = "/testCompleto", produces = "application/json")
-	public Map<String, String> test() throws IOException {
+	@RequestMapping(value = "/testCompleto", method = RequestMethod.GET)
+	public @ResponseBody Map<String, String> test() throws IOException {
 		Map<String, String> mapReturn = new HashMap<String, String>();
 
 		mapReturn.put("partyName", "ALTER FARMACIA, S.A.");
@@ -24,7 +26,6 @@ public class TestController {
 		mapReturn.put("lastChange", "2017-10-06T01:53:05.422");
 		mapReturn.put("caCode", "13");
 		mapReturn.put("countryName", "España");
-
 		return mapReturn;
 	}
 }
