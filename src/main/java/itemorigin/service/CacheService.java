@@ -28,11 +28,11 @@ public class CacheService {
 			.getMap(CacheConfig.GTIN_CACHE);
 
 	public Map<String, String> getItemInfo(String gtin) {
-		if (gtinCache.containsKey(gtin)) {
+		Map<String, String> cached = gtinCache.get(gtin);
+		if (cached != null) {
 			return gtinCache.get(gtin);
 		} else {
 			Map<String, String> mapReturn = new HashMap<String, String>();
-
 			String countryCode = countryService.getCountryCodeByGlnId(gtin);
 			if (!Strings.isNullOrEmpty(countryCode) && countryCode.equalsIgnoreCase("ES")) {
 				// Aecoc client
