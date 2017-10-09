@@ -19,17 +19,12 @@ public class CacheConfig {
 
 		MapConfig countryMap = new MapConfig().setName("glnCountryCode")
 				.setMaxSizeConfig(new MaxSizeConfig(200, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE))
-				.setEvictionPolicy(EvictionPolicy.LRU).setTimeToLiveSeconds(20);
-
-		MapConfig glnMap = new MapConfig().setName("glnId")
-				.setMaxSizeConfig(new MaxSizeConfig(200, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE))
-				.setEvictionPolicy(EvictionPolicy.LRU).setTimeToLiveSeconds(20);
+				.setEvictionPolicy(EvictionPolicy.LRU).setTimeToLiveSeconds(600);
 
 		MapConfig gtinMap = new MapConfig().setName(GTIN_CACHE)
 				.setMaxSizeConfig(new MaxSizeConfig(200, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE))
 				.setEvictionPolicy(EvictionPolicy.LRU).setTimeToLiveSeconds(600);
 
-		return new Config().setInstanceName(INSTANCE_NAME).addMapConfig(glnMap).addMapConfig(countryMap)
-				.addMapConfig(gtinMap);
+		return new Config().setInstanceName(INSTANCE_NAME).addMapConfig(countryMap).addMapConfig(gtinMap);
 	}
 }
