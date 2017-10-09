@@ -50,6 +50,7 @@ public class CacheService {
 				mapReturn.put("caName", caName);
 				String countryName = countryService.getCountryNameByCode(countryCode);
 				mapReturn.put("countryName", countryName);
+				mapReturn.put("countryCode", countryCode);
 			} else {
 				// Gepir limited client
 				String ret = "";
