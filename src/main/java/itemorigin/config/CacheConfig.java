@@ -16,7 +16,6 @@ public class CacheConfig {
 
 	@Bean
 	public Config hazelCastConfig() {
-
 		MapConfig countryMap = new MapConfig().setName("glnCountryCode")
 				.setMaxSizeConfig(new MaxSizeConfig(200, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE))
 				.setEvictionPolicy(EvictionPolicy.LRU).setTimeToLiveSeconds(600);
@@ -25,6 +24,8 @@ public class CacheConfig {
 				.setMaxSizeConfig(new MaxSizeConfig(200, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE))
 				.setEvictionPolicy(EvictionPolicy.LRU).setTimeToLiveSeconds(600);
 
-		return new Config().setInstanceName(INSTANCE_NAME).addMapConfig(countryMap).addMapConfig(gtinMap);
+		Config cfg = new Config().setInstanceName(INSTANCE_NAME).addMapConfig(countryMap).addMapConfig(gtinMap);
+		cfg.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
+		return cfg;
 	}
 }
