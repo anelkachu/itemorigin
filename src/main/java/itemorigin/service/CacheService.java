@@ -82,7 +82,7 @@ public class CacheService {
 				}
 
 				mapReturn.put("partyName", partyName);
-				mapReturn.put("street", street);
+				mapReturn.put("address", street);
 				mapReturn.put("lastChange", lastChange);
 				mapReturn.put("countryCode", countryCode);
 				mapReturn.put("countryName", countryName);
