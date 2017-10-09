@@ -15,7 +15,6 @@ public class TestController {
 	@RequestMapping(value = "/testCompleto", method = RequestMethod.GET)
 	public @ResponseBody Map<String, String> test() throws IOException {
 		Map<String, String> mapReturn = new HashMap<String, String>();
-
 		mapReturn.put("partyName", "ALTER FARMACIA, S.A.");
 		mapReturn.put("caName", "Comunidad de Madrid");
 		mapReturn.put("city", "Madrid");

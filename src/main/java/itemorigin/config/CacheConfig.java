@@ -11,6 +11,9 @@ import com.hazelcast.config.MaxSizeConfig;
 @Configuration
 public class CacheConfig {
 
+	public static String INSTANCE_NAME = "hazelcast-instance";
+	public static String GTIN_CACHE = "GTIN_CACHE";
+
 	@Bean
 	public Config hazelCastConfig() {
 
@@ -22,6 +25,11 @@ public class CacheConfig {
 				.setMaxSizeConfig(new MaxSizeConfig(200, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE))
 				.setEvictionPolicy(EvictionPolicy.LRU).setTimeToLiveSeconds(20);
 
-		return new Config().setInstanceName("hazelcast-instance").addMapConfig(glnMap).addMapConfig(countryMap);
+		MapConfig gtinMap = new MapConfig().setName(GTIN_CACHE)
+				.setMaxSizeConfig(new MaxSizeConfig(200, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE))
+				.setEvictionPolicy(EvictionPolicy.LRU).setTimeToLiveSeconds(600);
+
+		return new Config().setInstanceName(INSTANCE_NAME).addMapConfig(glnMap).addMapConfig(countryMap)
+				.addMapConfig(gtinMap);
 	}
 }
