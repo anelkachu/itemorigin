@@ -1,6 +1,7 @@
 package itemorigin.client;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.json.simple.JSONObject;
@@ -11,6 +12,7 @@ import org.jsoup.Jsoup;
 
 import com.github.wnameless.json.flattener.JsonFlattener;
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 
 import itemorigin.util.JSoupUtils;
 
@@ -63,11 +65,39 @@ public class GepirClient {
 		Connection conn = Jsoup.connect(URL).userAgent(JSoupUtils.USER_AGENT).header("REMOTE_ADDR", randomIP)
 				.header("HTTP_X_FORWARDED", randomIP).header("HTTP_X_CLUSTER_CLIENT_IP", randomIP)
 				.header("HTTP_FORWARDED_FOR", randomIP).header("HTTP_FORWARDED", randomIP)
-				.method(Connection.Method.POST)
-				.cookies(MAP_PARAMS)/* .data("keyValue", gln) */
+				.method(Connection.Method.POST).cookies(MAP_PARAMS)/* .data("keyValue", gln) */
 				.data("requestTradeItemType", "ownership").data("dccac7287b2ac6b801dafa79048758ef", "1")
 				.data("keyCode", "gtin");
 		return conn;
+	}
+
+	public static Map<String, String> getGepirInfo(String gtin) throws IOException {
+		String ret = "";
+		Map<String, String> mapReturn = new HashMap<String, String>();
+		try {
+			ret = GepirClient.prepareConnection().data("keyValue", gtin).execute().body();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Map<String, Object> flattenedJsonMap = JsonFlattener.flattenAsMap(ret);
+
+		String partyName = (String) flattenedJsonMap.get("gepirParty.partyDataLine.gS1KeyLicensee.partyName");
+		String street = (String) flattenedJsonMap.get("gepirParty.partyDataLine.address.streetAddressOne");
+		String lastChange = (String) flattenedJsonMap.get("gepirParty.partyDataLine.lastChangeDate");
+		String city = (String) flattenedJsonMap.get("gepirParty.partyDataLine.address.city");
+		String postalCode = (String) flattenedJsonMap.get("gepirParty.partyDataLine.address.postalCode");
+		// Country
+		String countryCode = (String) flattenedJsonMap.get("gepirParty.partyDataLine.address.countryCode._");
+		if (Strings.isNullOrEmpty(countryCode)) {
+			countryCode = (String) flattenedJsonMap.get("gepirParty.partyDataLine.countryAdministered");
+		}
+		mapReturn.put("partyName", partyName);
+		mapReturn.put("address", street);
+		mapReturn.put("lastChange", lastChange);
+		mapReturn.put("countryCode", countryCode);
+		mapReturn.put("postalCode", postalCode);
+		mapReturn.put("city", city);
+		return mapReturn;
 	}
 
 }

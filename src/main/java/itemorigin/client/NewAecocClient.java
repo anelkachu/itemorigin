@@ -68,9 +68,7 @@ public class NewAecocClient {
 				.data("__EVENTVALIDATION", "/wEWBQKk+8XBBAKg7LqFDQLCzuKzDQLS29mZDwLqoIaxAaTPvEwK8IuoEKohwjYsPn/+syQc")
 				.data("txtGTIN", gtin).data("radios", "rdPartyByGTIN").data("btBuscar.x", "33").data("btBuscar.y", "16")
 				.execute().parse().select("#divResul span");
-		
-		System.out.println("Request completed");
-		
+
 		for (int i = 0; i < elements.size(); i++) {
 			Element e = elements.get(i);
 			if (e.attr("id").equalsIgnoreCase("rptListadoPartyByGTIN_ctl01_lblDireccion")) {

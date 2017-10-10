@@ -49,7 +49,7 @@ public class PostalCodeService {
 		mapProv = new HashMap<String, String>();
 		mapCA = new HashMap<String, String>();
 
-		InputStream is = PostalCodeService.class.getClassLoader().getResourceAsStream("postal/provincias.txt");
+		InputStream is = PostalCodeService.class.getClassLoader().getResourceAsStream("data/postal/provincias.txt");
 		String contentProvicias = null;
 		try {
 			contentProvicias = readFile(is);
@@ -64,7 +64,7 @@ public class PostalCodeService {
 		}
 
 		String contentAutonomas = null;
-		is = PostalCodeService.class.getClassLoader().getResourceAsStream("postal/comAutonomas.txt");
+		is = PostalCodeService.class.getClassLoader().getResourceAsStream("data/postal/comAutonomas.txt");
 		try {
 			contentAutonomas = readFile(is);
 		} catch (IOException e) {

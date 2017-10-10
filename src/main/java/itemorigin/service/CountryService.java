@@ -20,7 +20,7 @@ public class CountryService {
 
 	@PostConstruct
 	public void afterPropertiesSet() throws Exception {
-		InputStream is = CountryService.class.getClassLoader().getResourceAsStream("glnCountry.csv");
+		InputStream is = CountryService.class.getClassLoader().getResourceAsStream("data/glnCountry.csv");
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
 			String line;
 			while ((line = br.readLine()) != null) {

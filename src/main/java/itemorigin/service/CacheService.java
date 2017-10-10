@@ -3,22 +3,31 @@ package itemorigin.service;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.github.wnameless.json.flattener.JsonFlattener;
-import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.hazelcast.core.Hazelcast;
 
+import itemorigin.client.AustriaClient;
 import itemorigin.client.GepirClient;
 import itemorigin.client.NewAecocClient;
 import itemorigin.config.CacheConfig;
 
 @Component
 public class CacheService {
+
+	private static final Logger LOG = LoggerFactory.getLogger(CacheService.class);
+
+	private AtomicInteger abroadCounter = new AtomicInteger(0);
+
+	public AtomicInteger getAbroadCounter() {
+		return abroadCounter;
+	}
 
 	@Autowired
 	CountryService countryService;
@@ -30,66 +39,58 @@ public class CacheService {
 			.getMap(CacheConfig.GTIN_CACHE);
 
 	public Map<String, String> getItemInfo(String gtin) {
-		Map<String, String> cached = gtinCache.get(gtin);
+		String paddedGtin13 = Strings.padStart(gtin, 13, '0');
+		String paddedGtin14 = Strings.padStart(gtin, 14, '0');
 
+		Map<String, String> cached = gtinCache.get(paddedGtin14);
 		if (cached != null) {
-			return gtinCache.get(gtin);
+			return gtinCache.get(paddedGtin14);
 		} else {
 			Map<String, String> mapReturn = new HashMap<String, String>();
-			String countryCode = countryService.getCountryCodeByGlnId(gtin);
-			if (!Strings.isNullOrEmpty(countryCode) && countryCode.equalsIgnoreCase("ES")) {
-				// Aecoc client
-				try {
-					mapReturn = NewAecocClient.getAecocInfo(gtin);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				String caCode = postalCodeService.getCaCode(mapReturn.get("postalCode"));
-				String caName = postalCodeService.getCaName(caCode);
-				mapReturn.put("caCode", caCode);
-				mapReturn.put("caName", caName);
-				String countryName = countryService.getCountryNameByCode(countryCode);
-				mapReturn.put("countryName", countryName);
-				mapReturn.put("countryCode", countryCode);
-			} else {
-				// Gepir limited client
-				String ret = "";
-				try {
-					ret = GepirClient.prepareConnection().data("keyValue", gtin).execute().body();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				Map<String, Object> flattenedJsonMap = JsonFlattener.flattenAsMap(ret);
+			String countryCode = countryService.getCountryCodeByGlnId(paddedGtin13);
 
-				String partyName = (String) flattenedJsonMap.get("gepirParty.partyDataLine.gS1KeyLicensee.partyName");
-				String street = (String) flattenedJsonMap.get("gepirParty.partyDataLine.address.streetAddressOne");
-				String lastChange = (String) flattenedJsonMap.get("gepirParty.partyDataLine.lastChangeDate");
-				String city = (String) flattenedJsonMap.get("gepirParty.partyDataLine.address.city");
-				String postalCode = (String) flattenedJsonMap.get("gepirParty.partyDataLine.address.postalCode");
-				// Country
-				countryCode = (String) flattenedJsonMap.get("gepirParty.partyDataLine.address.countryCode._");
-				if (Strings.isNullOrEmpty(countryCode)) {
-					countryCode = (String) flattenedJsonMap.get("gepirParty.partyDataLine.countryAdministered");
+			try {
+				if (!Strings.isNullOrEmpty(countryCode) && countryCode.equalsIgnoreCase("ES")) {
+					// Aecoc client
+					mapReturn = NewAecocClient.getAecocInfo(paddedGtin14);
+				} else {
+					// Gepir limited client
+					if (abroadCounter.intValue() < 30) {
+						// Gepir client
+						mapReturn = GepirClient.getGepirInfo(paddedGtin14);
+					} else {
+						// Austrian client
+						mapReturn = AustriaClient.getGepirAustriaInfo(paddedGtin14);
+					}
 				}
-				String countryName = countryService.getCountryNameByCode(countryCode);
+			} catch (IOException e) {
+				LOG.error(e.getMessage());
+			}
+			// 697 -> Chinese bulb: administered country.
+			if (Strings.isNullOrEmpty(countryCode)) {
+				countryCode = mapReturn.get("countryCode");
+			}
 
-				// Region based on postalCode
-				if (countryCode.equalsIgnoreCase("ES") && !Strings.isNullOrEmpty(postalCode)) {
+			// Enriching the info
+			String postalCode = mapReturn.get("postalCode");
+			if (!Strings.isNullOrEmpty(postalCode)) {
+				if (!Strings.isNullOrEmpty(postalCode) && countryCode.equalsIgnoreCase("ES")) {
 					String caCode = postalCodeService.getCaCode(postalCode);
 					String caName = postalCodeService.getCaName(caCode);
 					mapReturn.put("caCode", caCode);
 					mapReturn.put("caName", caName);
+				} else {
+					// BE/LUX case
+					if (countryCode.equalsIgnoreCase("BE") && postalCode.contains("L")) {
+						countryCode = "LU";
+						mapReturn.put("countryCode", countryCode);
+					}
 				}
-
-				mapReturn.put("partyName", partyName);
-				mapReturn.put("address", street);
-				mapReturn.put("lastChange", lastChange);
-				mapReturn.put("countryCode", countryCode);
-				mapReturn.put("countryName", countryName);
-				mapReturn.put("postalCode", postalCode);
-				mapReturn.put("city", city);
 			}
-			gtinCache.put(gtin, mapReturn);
+			String countryName = countryService.getCountryNameByCode(countryCode);
+			mapReturn.put("countryName", countryName);
+			// Storing in cache
+			gtinCache.put(paddedGtin14, mapReturn);
 			return mapReturn;
 		}
 	}
