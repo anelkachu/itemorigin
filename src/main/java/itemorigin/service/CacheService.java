@@ -49,7 +49,6 @@ public class CacheService {
 		} else {
 			Map<String, String> mapReturn = new HashMap<String, String>();
 			String countryCode = countryService.getCountryCodeByGlnId(paddedGtin13);
-			mapReturn.put("countryCode", countryCode);
 			try {
 				if (!Strings.isNullOrEmpty(countryCode) && countryCode.equalsIgnoreCase("ES")) {
 					// Aecoc client
