@@ -48,8 +48,7 @@ public class CacheService {
 			return gtinCache.get(paddedGtin14);
 		} else {
 			Map<String, String> mapReturn = new HashMap<String, String>();
-			String countryCode = countryService.getCountryCodeByGlnId(paddedGtin13);
-			mapReturn.put("countryCode", countryCode);
+			String countryCode = countryService.getCountryCodeByGlnId(paddedGtin13);			
 			try {
 				if (!Strings.isNullOrEmpty(countryCode) && countryCode.equalsIgnoreCase("ES")) {
 					// Aecoc client
@@ -88,6 +87,7 @@ public class CacheService {
 					}
 				}
 			}
+			mapReturn.put("countryCode", countryCode);
 			String countryName = countryService.getCountryNameByCode(countryCode);
 			mapReturn.put("countryName", countryName);
 			// Storing in cache
