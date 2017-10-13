@@ -42,6 +42,8 @@ public class CacheService {
 		String paddedGtin13 = Strings.padStart(gtin, 13, '0');
 		String paddedGtin14 = Strings.padStart(gtin, 14, '0');
 
+		LOG.info("Getting {}", paddedGtin14);
+		
 		Map<String, String> cached = gtinCache.get(paddedGtin14);
 		if (cached != null) {
 			LOG.info("Found {} in cache", paddedGtin14);
@@ -51,6 +53,7 @@ public class CacheService {
 			String countryCode = countryService.getCountryCodeByGlnId(paddedGtin13);			
 			try {
 				if (!Strings.isNullOrEmpty(countryCode) && countryCode.equalsIgnoreCase("ES")) {
+					LOG.info("Running client request {}", paddedGtin14);
 					// Aecoc client
 					mapReturn = NewAecocClient.getAecocInfo(paddedGtin14);
 				} else {
