@@ -44,6 +44,7 @@ public class CacheService {
 
 		Map<String, String> cached = gtinCache.get(paddedGtin14);
 		if (cached != null) {
+			LOG.info("Found {} in cache", paddedGtin14);
 			return gtinCache.get(paddedGtin14);
 		} else {
 			Map<String, String> mapReturn = new HashMap<String, String>();
