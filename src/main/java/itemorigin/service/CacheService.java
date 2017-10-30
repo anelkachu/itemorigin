@@ -43,28 +43,22 @@ public class CacheService {
 		String paddedGtin14 = Strings.padStart(gtin, 14, '0');
 
 		LOG.info("Getting {}", paddedGtin14);
-		
+
 		Map<String, String> cached = gtinCache.get(paddedGtin14);
 		if (cached != null) {
 			LOG.info("Found {} in cache", paddedGtin14);
 			return gtinCache.get(paddedGtin14);
 		} else {
 			Map<String, String> mapReturn = new HashMap<String, String>();
-			String countryCode = countryService.getCountryCodeByGlnId(paddedGtin13);			
+			String countryCode = countryService.getCountryCodeByGlnId(paddedGtin13);
 			try {
-				if (!Strings.isNullOrEmpty(countryCode) && countryCode.equalsIgnoreCase("ES")) {
-					LOG.info("Running client request {}", paddedGtin14);
-					// Aecoc client
-					mapReturn = NewAecocClient.getAecocInfo(paddedGtin14);
+				// Gepir limited client
+				if (abroadCounter.intValue() < 30) {
+					// Gepir client
+					mapReturn = GepirClient.getGepirInfo(paddedGtin14);
 				} else {
-					// Gepir limited client
-					if (abroadCounter.intValue() < 30) {
-						// Gepir client
-						mapReturn = GepirClient.getGepirInfo(paddedGtin14);
-					} else {
-						// Austrian client
-						mapReturn = AustriaClient.getGepirAustriaInfo(paddedGtin14);
-					}
+					// Austrian client
+					mapReturn = AustriaClient.getGepirAustriaInfo(paddedGtin14);
 				}
 			} catch (IOException e) {
 				LOG.error(e.getMessage());
