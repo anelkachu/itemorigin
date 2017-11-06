@@ -15,7 +15,7 @@ import com.hazelcast.core.Hazelcast;
 
 import itemorigin.client.AustriaClient;
 import itemorigin.client.GepirClient;
-import itemorigin.client.NewAecocClient;
+import itemorigin.client.GermanGepirClient;
 import itemorigin.config.CacheConfig;
 
 @Component
@@ -23,10 +23,10 @@ public class CacheService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CacheService.class);
 
-	private AtomicInteger abroadCounter = new AtomicInteger(0);
+	private AtomicInteger hitCounter = new AtomicInteger(0);
 
 	public AtomicInteger getAbroadCounter() {
-		return abroadCounter;
+		return hitCounter;
 	}
 
 	@Autowired
@@ -53,10 +53,13 @@ public class CacheService {
 			String countryCode = countryService.getCountryCodeByGlnId(paddedGtin13);
 			try {
 				// Gepir limited client
-				if (abroadCounter.intValue() < 30) {
+				if (hitCounter.intValue() < 30) {
 					// Gepir client
 					mapReturn = GepirClient.getGepirInfo(paddedGtin14);
-				} else {
+				} else if (hitCounter.intValue() >= 30 && hitCounter.intValue() < 60) {
+					// Austrian client
+					mapReturn = GermanGepirClient.getGepirInfo(paddedGtin14);
+				} else if (hitCounter.intValue() >= 60 && hitCounter.intValue() < 90) {
 					// Austrian client
 					mapReturn = AustriaClient.getGepirAustriaInfo(paddedGtin14);
 				}

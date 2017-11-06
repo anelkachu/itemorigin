@@ -24,15 +24,17 @@ public class GermanGepirClient {
 
 	private static final String URL = "http://gepir.gs1.org/index.php?option=com_gepir4ui&view=getkeylicensee&format=raw";
 
-	public static void main(String[] args) throws IOException, ParseException {
+	public static void main(String[] args) throws IOException, ParseException, InterruptedException {
 		// String gln = "8423415501009";
-		String gln = "8410728180120";
+		// String gln = "8410728180120";
 
-		// String url = "https://www.gepir.de/rest/search?q=8410055150018";
-		String url = "https://www.gepir.de/rest/search?q=" + gln;
+		String[] items = new String[] { "640522710850", "6970273110000", "8410055150018", "8430094304074",
+				"8423415501009" };
 
-		String randomIP = JSoupUtils.getRandomIp();
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < 50; i++) {
+			String gtin = items[i % items.length];
+			String randomIP = JSoupUtils.getRandomIp();
+			String url = "https://www.gepir.de/rest/search?q=" + gtin;
 			Connection.Response response = Jsoup.connect(url).userAgent(JSoupUtils.USER_AGENT)
 					.header("Connection", "keep-alive").header("REMOTE_ADDR", randomIP)
 					.header("HTTP_X_FORWARDED", randomIP).header("HTTP_X_CLUSTER_CLIENT_IP", randomIP)
@@ -44,11 +46,9 @@ public class GermanGepirClient {
 			Object obj = parser.parse(ret);
 			JSONObject jsonObject = (JSONObject) obj;
 			Map<String, Object> flattenedJsonMap = JsonFlattener.flattenAsMap(jsonObject.toString());
-
 			flattenedJsonMap.forEach((k, v) -> System.out.println(k + " : " + v));
-			// System.out.println(response.body());
-			// System.out.println("Request #" + i + " : " +
-			// flattenedJsonMap.get("gepirParty.partyDataLine.address.name"));
+			System.out.println("End of request " + i + " **************************");
+			Thread.sleep(1500);
 		}
 
 	}
@@ -58,8 +58,7 @@ public class GermanGepirClient {
 		Connection conn = Jsoup.connect(URL).userAgent(JSoupUtils.USER_AGENT).header("REMOTE_ADDR", randomIP)
 				.header("HTTP_X_FORWARDED", randomIP).header("HTTP_X_CLUSTER_CLIENT_IP", randomIP)
 				.header("HTTP_FORWARDED_FOR", randomIP).header("HTTP_FORWARDED", randomIP)
-				.method(Connection.Method.POST)
-				.cookies(MAP_PARAMS)/* .data("keyValue", gln) */
+				.method(Connection.Method.POST).cookies(MAP_PARAMS)/* .data("keyValue", gln) */
 				.data("requestTradeItemType", "ownership").data("dccac7287b2ac6b801dafa79048758ef", "1")
 				.data("keyCode", "gtin");
 		return conn;
